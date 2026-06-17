@@ -80,7 +80,7 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
 
   const colors = ['#8B5CF6', '#F97316', '#10B981', '#3B82F6', '#EC4899', '#EAB308'];
 
-  const onAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const onAreaClick = (e: React.PointerEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>) => {
     if (status === 'finished') return; // Inibisce animazione a test finito
     
     handleClick();
@@ -206,7 +206,7 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
       </div>
 
       <div 
-        onPointerDown={onAreaClick}
+        onClick={onAreaClick}
         className={status === 'running' ? 'animate-glow' : ''}
         style={{
           position: 'relative',
@@ -221,7 +221,7 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
           cursor: status === 'finished' ? 'default' : 'pointer',
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          touchAction: 'none', // Previene doppio tap per zoom e scroll nativo
+          touchAction: 'manipulation', // Disabilita delay mobile senza bloccare onTouch/onClick in React
           transition: 'all 0.2s ease',
         }}
       >
