@@ -206,7 +206,7 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
       </div>
 
       <div 
-        onClick={onAreaClick}
+        onPointerDown={onAreaClick}
         className={status === 'running' ? 'animate-glow' : ''}
         style={{
           position: 'relative',
@@ -223,12 +223,6 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
           WebkitUserSelect: 'none',
           touchAction: 'none', // Previene doppio tap per zoom e scroll nativo
           transition: 'all 0.2s ease',
-        }}
-        // Aggiungiamo anche onTouchStart per bypassare il ritardo del click su mobile
-        onTouchStart={(e) => {
-          if (status !== 'finished') {
-            onAreaClick(e as unknown as React.MouseEvent<HTMLDivElement>);
-          }
         }}
       >
         {status === 'idle' && (
