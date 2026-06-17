@@ -25,6 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it" className={`${outfit.variable}`}>
+      <head>
+        {/* Iubenda Privacy Controls and Cookie Solution */}
+        <script type="text/javascript" src="https://embeds.iubenda.com/widgets/7004ac4d-902a-464d-937c-acd24515a851.js"></script>
+      </head>
       <body>
         <div className="app-container">
           <Sidebar />

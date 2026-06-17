@@ -51,6 +51,13 @@ export default function Sidebar() {
       {/* Auth & Footer nel sidebar */}
       <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: 'var(--glass-border)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <AuthButton />
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem', textAlign: 'center', alignItems: 'center' }}>
+          <a href="https://www.iubenda.com/privacy-policy/85457242" className="iubenda-black iubenda-noiframe iubenda-embed" title="Privacy Policy">Privacy Policy</a>
+          <a href="https://www.iubenda.com/privacy-policy/85457242/cookie-policy" className="iubenda-black iubenda-noiframe iubenda-embed" title="Cookie Policy">Cookie Policy</a>
+          <script dangerouslySetInnerHTML={{ __html: `(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);` }} />
+        </div>
+
         <div style={{ fontSize: '0.8rem', textAlign: 'center' }} className="text-muted">
           © {new Date().getFullYear()} cpstest.it
         </div>
