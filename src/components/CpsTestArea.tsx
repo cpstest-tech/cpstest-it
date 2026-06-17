@@ -221,13 +221,12 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
           cursor: status === 'finished' ? 'default' : 'pointer',
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          touchAction: 'manipulation', // Previene doppio tap per zoom
+          touchAction: 'none', // Previene doppio tap per zoom e scroll nativo
           transition: 'all 0.2s ease',
         }}
-        // Aggiungiamo anche onTouchStart per bypassare il ritardo del click su mobile e prevenire lo scroll
+        // Aggiungiamo anche onTouchStart per bypassare il ritardo del click su mobile
         onTouchStart={(e) => {
           if (status !== 'finished') {
-            e.preventDefault(); // Previene lo scroll della pagina
             onAreaClick(e as unknown as React.MouseEvent<HTMLDivElement>);
           }
         }}
