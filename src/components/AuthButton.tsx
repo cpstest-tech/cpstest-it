@@ -59,8 +59,7 @@ export default function AuthButton() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // Redirige semplicemente alla home, Supabase JS leggerà l'hash fragment (#access_token=...) in automatico
-        redirectTo: window.location.origin
+        redirectTo: `${window.location.origin}/auth/callback`
       }
     });
   };
