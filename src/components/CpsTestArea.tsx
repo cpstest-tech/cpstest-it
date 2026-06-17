@@ -4,7 +4,7 @@ import { useCpsTest } from '@/hooks/useCpsTest';
 import { useState, useRef, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import ShareModal from '@/components/ShareModal';
-import { Share2, Medal } from 'lucide-react';
+import { Share2, Medal, MousePointer2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface CpsTestAreaProps {
@@ -14,18 +14,37 @@ interface CpsTestAreaProps {
 export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
   const { status, clicks, timeLeft, cps, handleClick, resetTest } = useCpsTest(durationSeconds);
   const [particles, setParticles] = useState<{ x: number, y: number, id: number, color: string, rotation: number, scale: number }[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [isNewRecord, setIsNewRecord] = useState(false);
   
   // Ref per evitare salvataggi doppi
   const hasSavedScoreRef = useRef(false);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
+  }, []);
+
+  useEffect(() => {
     if (status === 'idle') {
       hasSavedScoreRef.current = false;
+      setIsNewRecord(false);
     }
 
     if (status === 'finished' && !hasSavedScoreRef.current) {
       hasSavedScoreRef.current = true;
       
+      const pbKey = `cps_pb_${durationSeconds}`;
+      const prevBest = parseFloat(localStorage.getItem(pbKey) || '0');
+      
+      if (cps > prevBest && durationSeconds > 0) {
+        setIsNewRecord(true);
+        localStorage.setItem(pbKey, cps.toString());
+      } else {
+        setIsNewRecord(false);
+      }
+
       const saveScore = async () => {
         try {
           const { data: { session } } = await supabase.auth.getSession();
@@ -214,44 +233,49 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
         }}
       >
         {status === 'idle' && (
-          <div className="text-center animate-fade-in" style={{ padding: '20px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', color: '#fff' }}>
-              CLICCA QUI PER INIZIARE
-            </h2>
-            {durationSeconds === 0 && (
-              <p style={{ color: 'var(--color-text-muted)', marginTop: '8px' }}>Il test finirà in automatico 1s dopo che smetti di cliccare.</p>
-            )}
+          <div className="text-center animate-pulse animate-fade-in" style={{ padding: '20px' }}>
+            <MousePointer2 size={48} color="var(--color-primary-light)" style={{ margin: '0 auto 16px auto', opacity: 0.8 }} />
+            <h2 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '8px' }}>Clicca per iniziare</h2>
+            <p className="text-muted">Inizia a cliccare il più velocemente possibile!</p>
           </div>
         )}
 
         {status === 'running' && (
-          <div style={{ fontSize: '6rem', fontWeight: 900, color: 'rgba(255, 255, 255, 0.05)', letterSpacing: '4px' }}>
-            CLICCA!
+          <div style={{ fontSize: '6rem', fontWeight: 900, opacity: 0.1, position: 'absolute' }}>
+            {clicks}
           </div>
         )}
 
         {status === 'finished' && (
-          <div className="text-center animate-fade-in" style={{ zIndex: 10, background: 'var(--color-bg)', padding: '60px', borderRadius: '24px', border: 'var(--glass-border)' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px', letterSpacing: '1px', color: 'var(--color-primary-light)' }}>IL TUO PUNTEGGIO</div>
-            <div style={{ fontSize: '5rem', fontWeight: 900, lineHeight: 1, marginBottom: '8px' }}>{cps}</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '32px', color: 'var(--color-text-muted)' }}>CPS</div>
+          <div className="glass-panel animate-fade-in" style={{ padding: '40px', textAlign: 'center', zIndex: 10, background: 'rgba(9, 9, 11, 0.95)' }}>
+            {isNewRecord && (
+              <div style={{ color: '#FBBF24', fontWeight: 800, marginBottom: '16px', fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                🎉 Nuovo Record Personale!
+              </div>
+            )}
+            <h3 style={{ color: 'var(--color-primary-light)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '2px' }}>Il tuo Punteggio</h3>
+            <div style={{ fontSize: '4rem', fontWeight: 900, lineHeight: 1 }}>{cps.toFixed(1)}</div>
+            <div className="text-muted" style={{ fontSize: '1.2rem', fontWeight: 600, marginTop: '8px', marginBottom: '24px' }}>CPS</div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
+              Totale: {clicks} click in {durationSeconds}s
+            </div>
             
-            <p className="text-muted" style={{ marginBottom: '32px', fontSize: '1rem' }}>
-              Totale: {clicks} click in {durationSeconds === 0 ? timeLeft.toFixed(1) : durationSeconds}s
-            </p>
+            {!user && isNewRecord && (
+              <div style={{ background: 'rgba(109, 40, 217, 0.1)', border: '1px solid var(--color-primary)', padding: '12px', borderRadius: '8px', marginBottom: '24px', fontSize: '0.9rem' }}>
+                <strong>Non sei loggato!</strong><br />
+                Accedi dal menu laterale per salvare questo punteggio nella classifica globale!
+              </div>
+            )}
             
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-              <button className="btn-primary" style={{ padding: '12px 32px', fontSize: '1rem' }} onClick={(e) => { e.stopPropagation(); resetTest(); }}>
-                Riprova
-              </button>
-              <button className="btn-secondary" style={{ padding: '12px 24px', fontSize: '1rem', display: 'flex', gap: '8px', alignItems: 'center' }} onClick={handleShareClick} disabled={isCapturing}>
-                <Share2 size={18} /> {isCapturing ? 'Creazione...' : 'Condividi Immagine'}
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: !user && isNewRecord ? '0' : '24px' }}>
+              <button onClick={(e) => { e.stopPropagation(); resetTest(); }} className="btn-primary">Riprova</button>
+              <button onClick={handleShareClick} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Share2 size={16} /> Condividi Immagine
               </button>
             </div>
           </div>
         )}
 
-        {/* Dynamic Cool Particles */}
         {particles.map((p) => (
           <div
             key={p.id}

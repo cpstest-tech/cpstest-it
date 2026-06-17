@@ -3,10 +3,10 @@ import type { NextConfig } from "next";
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.iubenda.com https://embeds.iubenda.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  img-src 'self' blob: data: https://*.googleusercontent.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.iubenda.com;
+  img-src 'self' blob: data: https://*.googleusercontent.com https://api.dicebear.com;
   font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://idb.iubenda.com;
   frame-src 'self' https://www.iubenda.com;
   object-src 'none';
   base-uri 'self';

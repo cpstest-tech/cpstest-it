@@ -1,12 +1,19 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MousePointer2, Trophy, BookOpen, Clock, Activity } from 'lucide-react';
+import { MousePointer2, Trophy, BookOpen, Clock, Activity, Menu, X } from 'lucide-react';
 import AuthButton from '@/components/AuthButton';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Chiudi la sidebar su mobile quando si naviga a una nuova pagina
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   const links = [
     { href: '/', label: 'CPS Test (10s)', icon: <MousePointer2 size={18} /> },
@@ -19,49 +26,67 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="sidebar">
-      {/* Logo */}
-      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
-        <img 
-          src="/logo.jpeg" 
-          alt="cpstest.it Logo" 
-          style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'cover' }} 
-        />
-        <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
-          cpstest<span style={{ color: 'var(--color-primary)' }}>.it</span>
-        </span>
-      </Link>
-
-      {/* Nav Links */}
-      <nav style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <div className="text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', paddingLeft: '16px' }}>
-          Modalità
-        </div>
-        {links.map((link) => {
-          const isActive = pathname === link.href;
-          return (
-            <Link key={link.href} href={link.href} className={`sidebar-link ${isActive ? 'active' : ''}`}>
-              {link.icon}
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Auth & Footer nel sidebar */}
-      <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: 'var(--glass-border)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <AuthButton />
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem', textAlign: 'center', alignItems: 'center' }}>
-          <a href="https://www.iubenda.com/privacy-policy/85457242" className="iubenda-black iubenda-noiframe iubenda-embed" title="Privacy Policy">Privacy Policy</a>
-          <a href="https://www.iubenda.com/privacy-policy/85457242/cookie-policy" className="iubenda-black iubenda-noiframe iubenda-embed" title="Cookie Policy">Cookie Policy</a>
-          <script dangerouslySetInnerHTML={{ __html: `(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);` }} />
-        </div>
-
-        <div style={{ fontSize: '0.8rem', textAlign: 'center' }} className="text-muted">
-          © {new Date().getFullYear()} cpstest.it
-        </div>
+    <>
+      <div className="mobile-header">
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img src="/logo.jpeg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+          <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>cpstest<span style={{color:'var(--color-primary)'}}>.it</span></span>
+        </Link>
+        <button onClick={() => setIsOpen(true)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
+          <Menu size={28} />
+        </button>
       </div>
-    </aside>
+
+      {isOpen && <div className="mobile-overlay" onClick={() => setIsOpen(false)} />}
+
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <button className="mobile-close" onClick={() => setIsOpen(false)}>
+          <X size={24} />
+        </button>
+
+        {/* Logo */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
+          <img 
+            src="/logo.jpeg" 
+            alt="cpstest.it Logo" 
+            style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'cover' }} 
+          />
+          <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
+            cpstest<span style={{ color: 'var(--color-primary)' }}>.it</span>
+          </span>
+        </Link>
+
+        {/* Nav Links */}
+        <nav style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div className="text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', paddingLeft: '16px' }}>
+            Modalità
+          </div>
+          {links.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link key={link.href} href={link.href} className={`sidebar-link ${isActive ? 'active' : ''}`}>
+                {link.icon}
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Auth & Footer nel sidebar */}
+        <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: 'var(--glass-border)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <AuthButton />
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem', textAlign: 'center', alignItems: 'center' }}>
+            <a href="https://www.iubenda.com/privacy-policy/85457242" className="iubenda-black iubenda-noiframe iubenda-embed" title="Privacy Policy">Privacy Policy</a>
+            <a href="https://www.iubenda.com/privacy-policy/85457242/cookie-policy" className="iubenda-black iubenda-noiframe iubenda-embed" title="Cookie Policy">Cookie Policy</a>
+            <script dangerouslySetInnerHTML={{ __html: `(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);` }} />
+          </div>
+
+          <div style={{ fontSize: '0.8rem', textAlign: 'center' }} className="text-muted">
+            © {new Date().getFullYear()} cpstest.it
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
