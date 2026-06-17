@@ -39,7 +39,20 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
         Seleziona Tempo
       </div>
       
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+      <div className="time-select-container" style={{ 
+        display: 'flex', 
+        gap: '8px', 
+        overflowX: 'auto', 
+        paddingBottom: '8px',
+        WebkitOverflowScrolling: 'touch',
+        scrollbarWidth: 'none', // Nasconde scrollbar su Firefox
+        msOverflowStyle: 'none', // Nasconde scrollbar su IE/Edge
+      }}>
+        {/* Hack per nascondere la scrollbar su webkit aggiungendo stile inline se necessario, o affidandosi a global css */}
+        <style dangerouslySetInnerHTML={{__html: `
+          .time-select-container::-webkit-scrollbar { display: none; }
+        `}} />
+        
         {times.map((t) => {
           const isActive = t === currentDuration;
           const href = t === 10 ? '/' : `/cps-test-${t}-second`;
@@ -51,17 +64,17 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
               style={{
                 background: isActive ? 'var(--color-primary)' : 'var(--color-surface)',
                 color: isActive ? '#fff' : 'var(--color-text)',
-                padding: '16px 24px',
+                padding: '12px 16px',
                 borderRadius: '8px',
                 textAlign: 'center',
                 fontWeight: 700,
-                fontSize: '0.95rem',
+                fontSize: '0.9rem',
                 transition: 'all 0.2s',
                 textTransform: 'uppercase',
                 boxShadow: isActive ? '0 4px 14px var(--color-primary-glow)' : 'none',
                 border: isActive ? '1px solid var(--color-primary-light)' : '1px solid rgba(255,255,255,0.05)',
-                flex: '1 1 auto',
-                minWidth: '120px'
+                flexShrink: 0,
+                minWidth: '80px'
               }}
               onMouseOver={(e) => {
                 if (!isActive) e.currentTarget.style.background = 'var(--color-surface-hover)';
@@ -70,7 +83,7 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
                 if (!isActive) e.currentTarget.style.background = 'var(--color-surface)';
               }}
             >
-              {t} Secondi
+              {t}s
             </Link>
           );
         })}
@@ -80,21 +93,21 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
           style={{
             background: 'var(--color-surface)',
             color: 'var(--color-text)',
-            padding: '16px 24px',
+            padding: '12px 16px',
             borderRadius: '8px',
             textAlign: 'center',
             fontWeight: 700,
-            fontSize: '0.95rem',
+            fontSize: '0.9rem',
             border: '1px solid rgba(255,255,255,0.05)',
             cursor: 'pointer',
-            flex: '1 1 auto',
+            flexShrink: 0,
             minWidth: '120px',
             transition: 'all 0.2s'
           }}
           onMouseOver={(e) => { e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
           onMouseOut={(e) => { e.currentTarget.style.background = 'var(--color-surface)'; }}
         >
-          PERSONALIZZATO
+          CUSTOM
         </button>
 
         <Link 
@@ -102,15 +115,15 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
           style={{
             background: currentDuration === 0 ? 'var(--color-primary)' : 'var(--color-surface)',
             color: currentDuration === 0 ? '#fff' : 'var(--color-text)',
-            padding: '16px 24px',
+            padding: '12px 16px',
             borderRadius: '8px',
             textAlign: 'center',
             fontWeight: 700,
-            fontSize: '0.95rem',
+            fontSize: '0.9rem',
             border: currentDuration === 0 ? '1px solid var(--color-primary-light)' : '1px dashed var(--color-primary-light)',
             cursor: 'pointer',
-            flex: '1 1 auto',
-            minWidth: '120px',
+            flexShrink: 0,
+            minWidth: '100px',
             boxShadow: currentDuration === 0 ? '0 4px 14px var(--color-primary-glow)' : 'none',
             transition: 'all 0.2s'
           }}

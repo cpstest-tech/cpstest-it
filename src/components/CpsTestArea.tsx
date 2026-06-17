@@ -186,7 +186,6 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
         </div>
       </div>
 
-      {/* Massive Click Area */}
       <div 
         onClick={onAreaClick}
         className={status === 'running' ? 'animate-glow' : ''}
@@ -202,7 +201,16 @@ export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
           justifyContent: 'center',
           cursor: status === 'finished' ? 'default' : 'pointer',
           userSelect: 'none',
+          WebkitUserSelect: 'none',
+          touchAction: 'manipulation', // Previene doppio tap per zoom
           transition: 'all 0.2s ease',
+        }}
+        // Aggiungiamo anche onTouchStart per bypassare il ritardo del click su mobile e prevenire lo scroll
+        onTouchStart={(e) => {
+          if (status !== 'finished') {
+            e.preventDefault(); // Previene lo scroll della pagina
+            onAreaClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+          }
         }}
       >
         {status === 'idle' && (
