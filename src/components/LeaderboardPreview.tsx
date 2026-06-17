@@ -8,6 +8,8 @@ import { User } from '@supabase/supabase-js';
 export default function LeaderboardPreview() {
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<'daily' | 'monthly' | 'lifetime'>('daily');
+  const [leaderboardData, setLeaderboardData] = useState<{name: string, cps: string}[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -19,28 +21,54 @@ export default function LeaderboardPreview() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fakeDaily = [
-    { name: 'xX_GodClick_Xx', cps: '16.4' },
-    { name: 'MinecraftPro99', cps: '15.8' },
-    { name: 'Faker', cps: '15.1' },
-    { name: 'NinjaClicker', cps: '14.7' },
-    { name: 'NoobMaster', cps: '14.2' },
-    { name: 'ItzMe_Mario', cps: '13.9' },
-    { name: 'GigaChad_PvP', cps: '13.5' },
-    { name: 'SweatyTryhard', cps: '13.1' },
-    { name: 'FastestFinger', cps: '12.8' },
-    { name: 'CasualGamer', cps: '11.5' },
-    { name: 'ClickBot9000', cps: '11.2' },
-    { name: 'RedBullDrinker', cps: '10.8' },
-    { name: 'AverageJoe', cps: '10.1' },
-    { name: 'SlowPoke', cps: '9.5' },
-    { name: 'GrandmaClicks', cps: '8.2' },
-  ];
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setLoading(true);
+      try {
+        let query = supabase
+          .from('scores')
+          .select('cps, profiles!inner(username), created_at')
+          .order('cps', { ascending: false })
+          .limit(100);
+          
+        if (activeTab === 'daily') {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          query = query.gte('created_at', yesterday.toISOString());
+        } else if (activeTab === 'monthly') {
+          const lastMonth = new Date();
+          lastMonth.setMonth(lastMonth.getMonth() - 1);
+          query = query.gte('created_at', lastMonth.toISOString());
+        }
+        
+        const { data, error } = await query;
+        if (error) throw error;
+        
+        // Filter unique users in JS to simulate GROUP BY user_id
+        const uniqueUsers = new Set();
+        const result: {name: string, cps: string}[] = [];
+        
+        if (data) {
+          for (const row of data) {
+            const username = (row.profiles as any).username;
+            if (!uniqueUsers.has(username)) {
+              uniqueUsers.add(username);
+              result.push({ name: username, cps: Number(row.cps).toFixed(1) });
+              if (result.length >= 15) break;
+            }
+          }
+        }
+        
+        setLeaderboardData(result);
+      } catch (err) {
+        console.error("Errore fetch classifica:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fakeMonthly = fakeDaily.map(p => ({ ...p, cps: (parseFloat(p.cps) + 1.5).toFixed(1) }));
-  const fakeLifetime = fakeDaily.map(p => ({ ...p, cps: (parseFloat(p.cps) + 3.2).toFixed(1) }));
-
-  const currentList = activeTab === 'daily' ? fakeDaily : activeTab === 'monthly' ? fakeMonthly : fakeLifetime;
+    fetchLeaderboard();
+  }, [activeTab]);
 
   return (
     <div className="glass-panel leaderboard-preview" style={{ height: '100%', padding: '24px', display: 'flex', flexDirection: 'column' }}>
@@ -71,16 +99,26 @@ export default function LeaderboardPreview() {
       </div>
       
       {/* List without forced scroll, taking natural height */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {currentList.map((player, i) => (
-          <div key={i} style={{ flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'var(--color-surface-hover)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.02)' }}>
-            <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
-              <span style={{ color: 'var(--color-text-muted)', marginRight: '8px' }}>#{i+1}</span>
-              {player.name}
-            </span>
-            <span style={{ color: 'var(--color-primary-light)', fontWeight: 800 }}>{player.cps}</span>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '400px' }}>
+        {loading ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+            Caricamento classifica...
           </div>
-        ))}
+        ) : leaderboardData.length === 0 ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+            Nessun record in questo periodo. Sii il primo!
+          </div>
+        ) : (
+          leaderboardData.map((player, i) => (
+            <div key={i} style={{ flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'var(--color-surface-hover)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.02)' }}>
+              <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
+                <span style={{ color: 'var(--color-text-muted)', marginRight: '8px' }}>#{i+1}</span>
+                {player.name}
+              </span>
+              <span style={{ color: 'var(--color-primary-light)', fontWeight: 800 }}>{player.cps}</span>
+            </div>
+          ))
+        )}
       </div>
 
       {!user ? (

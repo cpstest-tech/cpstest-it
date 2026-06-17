@@ -4,19 +4,48 @@ import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { LogOut } from 'lucide-react';
+import UsernameModal from './UsernameModal';
 
 export default function AuthButton() {
   const [user, setUser] = useState<User | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUser = session?.user || null;
+      setUser(currentUser);
+      
+      if (currentUser) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', currentUser.id)
+          .single();
+          
+        if (data) {
+          setUsername(data.username);
+        }
+      }
       setLoading(false);
-    });
+    };
+    
+    checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user || null;
+      setUser(currentUser);
+      if (currentUser) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', currentUser.id)
+          .single();
+        setUsername(data?.username || null);
+      } else {
+        setUsername(null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -63,18 +92,27 @@ export default function AuthButton() {
   const standardAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.id;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px', background: 'var(--color-surface-hover)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <img 
-        src={standardAvatar} 
-        alt="Avatar Standard" 
-        style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--color-primary)' }} 
-      />
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{user.user_metadata?.name || 'Utente'}</span>
-        <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.8rem', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <LogOut size={12} /> Esci
-        </button>
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px', background: 'var(--color-surface-hover)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <img 
+          src={standardAvatar} 
+          alt="Avatar Standard" 
+          style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--color-primary)' }} 
+        />
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{username || 'Nuovo Utente'}</span>
+          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.8rem', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <LogOut size={12} /> Esci
+          </button>
+        </div>
       </div>
-    </div>
+      
+      {user && !username && !loading && (
+        <UsernameModal 
+          userId={user.id} 
+          onSuccess={(newUsername) => setUsername(newUsername)} 
+        />
+      )}
+    </>
   );
 }

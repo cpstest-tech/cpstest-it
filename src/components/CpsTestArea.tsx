@@ -1,10 +1,11 @@
 'use client';
 
 import { useCpsTest } from '@/hooks/useCpsTest';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import ShareModal from '@/components/ShareModal';
 import { Share2, Medal } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface CpsTestAreaProps {
   durationSeconds: number;
@@ -13,6 +14,45 @@ interface CpsTestAreaProps {
 export default function CpsTestArea({ durationSeconds }: CpsTestAreaProps) {
   const { status, clicks, timeLeft, cps, handleClick, resetTest } = useCpsTest(durationSeconds);
   const [particles, setParticles] = useState<{ x: number, y: number, id: number, color: string, rotation: number, scale: number }[]>([]);
+  
+  // Ref per evitare salvataggi doppi
+  const hasSavedScoreRef = useRef(false);
+
+  useEffect(() => {
+    if (status === 'idle') {
+      hasSavedScoreRef.current = false;
+    }
+
+    if (status === 'finished' && !hasSavedScoreRef.current) {
+      hasSavedScoreRef.current = true;
+      
+      const saveScore = async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('id', session.user.id)
+              .single();
+
+            if (profile) {
+              await supabase.from('scores').insert({
+                user_id: session.user.id,
+                cps: cps,
+                clicks: clicks,
+                duration: durationSeconds,
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Errore salvataggio punteggio:", err);
+        }
+      };
+      
+      saveScore();
+    }
+  }, [status, cps, clicks, durationSeconds]);
   
   const [isShareModalOpen, setShareModalOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string>('');
