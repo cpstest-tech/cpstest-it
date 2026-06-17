@@ -11,6 +11,11 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "CPS Test - Misura i tuoi click al secondo | cpstest.it",
   description: "Il sito italiano di riferimento per il CPS Test. Misura quanti click al secondo riesci a fare, batti i record e condividi il risultato!",
+  icons: {
+    icon: "/logo.jpeg",
+    shortcut: "/logo.jpeg",
+    apple: "/logo.jpeg",
+  },
 };
 
 export default function RootLayout({
