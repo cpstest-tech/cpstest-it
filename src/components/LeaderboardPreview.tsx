@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Trophy } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 
-export default function LeaderboardPreview() {
+export default function LeaderboardPreview({ duration }: { duration: number }) {
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<'daily' | 'monthly' | 'lifetime'>('daily');
   const [leaderboardData, setLeaderboardData] = useState<{name: string, cps: string}[]>([]);
@@ -28,6 +28,7 @@ export default function LeaderboardPreview() {
         let query = supabase
           .from('scores')
           .select('cps, profiles!inner(username), created_at')
+          .eq('duration', duration)
           .order('cps', { ascending: false })
           .limit(100);
           
@@ -73,7 +74,7 @@ export default function LeaderboardPreview() {
   return (
     <div className="glass-panel leaderboard-preview" style={{ height: '100%', padding: '24px', display: 'flex', flexDirection: 'column' }}>
       <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary-light)', marginBottom: '16px', fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-        <Trophy size={20} /> Classifica
+        <Trophy size={20} /> Classifica ({duration === 0 ? 'Infinito' : `${duration}s`})
       </h3>
 
       {/* Tabs */}

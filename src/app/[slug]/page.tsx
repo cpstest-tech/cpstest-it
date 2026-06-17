@@ -58,7 +58,7 @@ export default async function CpsTestPage({ params }: PageProps) {
 
         {/* Leaderboard & CTA */}
         <div className="desktop-only leaderboard-preview">
-          <LeaderboardPreview />
+          <LeaderboardPreview duration={durationSeconds} />
         </div>
 
         {/* Vertical Ad */}

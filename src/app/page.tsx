@@ -21,7 +21,7 @@ export default function Home() {
 
         {/* Colonna Centro: Leaderboard & CTA */}
         <div className="desktop-only leaderboard-preview">
-          <LeaderboardPreview />
+          <LeaderboardPreview duration={10} />
         </div>
 
         {/* Colonna Estrema: Vertical Ad */}
