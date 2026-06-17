@@ -4,7 +4,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.iubenda.com https://embeds.iubenda.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  img-src 'self' blob: data: https://lh3.googleusercontent.com;
+  img-src 'self' blob: data: https://*.googleusercontent.com;
   font-src 'self' https://fonts.gstatic.com;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co;
   frame-src 'self' https://www.iubenda.com;

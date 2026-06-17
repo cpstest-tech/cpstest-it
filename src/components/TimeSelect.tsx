@@ -73,7 +73,7 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
                 textTransform: 'uppercase',
                 boxShadow: isActive ? '0 4px 14px var(--color-primary-glow)' : 'none',
                 border: isActive ? '1px solid var(--color-primary-light)' : '1px solid rgba(255,255,255,0.05)',
-                flexShrink: 0,
+                flex: '1 0 auto',
                 minWidth: '80px'
               }}
               onMouseOver={(e) => {
@@ -100,7 +100,7 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
             fontSize: '0.9rem',
             border: '1px solid rgba(255,255,255,0.05)',
             cursor: 'pointer',
-            flexShrink: 0,
+            flex: '1 0 auto',
             minWidth: '120px',
             transition: 'all 0.2s'
           }}
@@ -122,7 +122,7 @@ export default function TimeSelect({ currentDuration }: { currentDuration: numbe
             fontSize: '0.9rem',
             border: currentDuration === 0 ? '1px solid var(--color-primary-light)' : '1px dashed var(--color-primary-light)',
             cursor: 'pointer',
-            flexShrink: 0,
+            flex: '1 0 auto',
             minWidth: '100px',
             boxShadow: currentDuration === 0 ? '0 4px 14px var(--color-primary-glow)' : 'none',
             transition: 'all 0.2s'
