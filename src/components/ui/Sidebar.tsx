@@ -15,7 +15,7 @@ export default function Sidebar() {
     { href: '/cps-test-30-second', label: '30 Secondi', icon: <Clock size={18} /> },
     { href: '/cps-test-60-second', label: '60 Secondi', icon: <Clock size={18} /> },
     { href: '/leaderboard', label: 'Leaderboard', icon: <Trophy size={18} /> },
-    { href: '/blog/cos-e-il-cps', label: 'Guide & Info', icon: <BookOpen size={18} /> },
+    { href: '/blog', label: 'Guide & Info', icon: <BookOpen size={18} /> },
   ];
 
   return (
