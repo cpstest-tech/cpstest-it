@@ -28,6 +28,8 @@ export default function RootLayout({
       <head>
         {/* Iubenda Privacy Controls and Cookie Solution */}
         <script type="text/javascript" src="https://embeds.iubenda.com/widgets/7004ac4d-902a-464d-937c-acd24515a851.js"></script>
+        {/* Google AdSense */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8198272156981689" crossOrigin="anonymous"></script>
       </head>
       <body>
         <div className="app-container">
